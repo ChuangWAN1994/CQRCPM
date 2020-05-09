@@ -2,6 +2,13 @@
 ###########################
 rm(list=ls())
 
+
+##Estimation 
+#t: the threshold parameters
+#y: a vector of response
+#x: the threshold vector
+#z: the non-thresholding covariates
+
 LS.rho=function(t,y,x,z){
   u <- pmin(x-t,0)
   v <- pmax(x-t,0)
@@ -32,8 +39,8 @@ LS.fitting=function(y,x,z){
 
 
 
-#########Inference
-#subject <- subject_id
+#########Inference 
+#subject: the ID of all individuals
 
 LS.sym <- function(y,x,z,subject)
 {
@@ -109,88 +116,6 @@ LS.sym <- function(y,x,z,subject)
 
 
 
-LS.Boot <- function(y,x,z,subject,n.boot)
-{
-    design=model.matrix(~-1+factor(subject))
-    N=dim(design)[2]
-    x.lst=list()
-    z.lst=list()
-    y.lst=list()
-    for(i in 1:N){
-      x.lst[[i]]=subset(x,design[,i]==1)
-      z.lst[[i]]=subset(z,design[,i]==1)
-      y.lst[[i]]=subset(y,design[,i]==1)
-    }
-    p <- dim(cbind(z))[2]
-    par.boot <- matrix(NA,n.boot,5)
-    for(i in 1:n.boot){
-      N.boot <- sample(1:N,replace = T)
-      x.boot <- unlist(x.lst[N.boot])
-      z.boot <- unlist(z.lst[N.boot])
-      y.boot <- unlist(y.lst[N.boot])
-      obj <- LS.fitting(y.boot,x.boot,z.boot) #fitting.cqr(tao.v,y.boot,x.boot,z.boot)
-      par.boot[i,] <- obj$vartheta
-    }
-    
-    return(par.boot)
-    
-}
-
-
-
-LAD.boot <- function(y,x,z,subject,tau,n.boot)
-{
-  
-  design=model.matrix(~-1+factor(subject))
-  N=dim(design)[2]
-  x.lst=list()
-  z.lst=list()
-  y.lst=list()
-  for(i in 1:N){
-    x.lst[[i]]=subset(x,design[,i]==1)
-    z.lst[[i]]=subset(z,design[,i]==1)
-    y.lst[[i]]=subset(y,design[,i]==1)
-  }
-  p <- dim(cbind(z))[2]
-  par.boot <- matrix(NA,n.boot,5)
-  for(i in 1:n.boot){
-    N.boot <- sample(1:N,replace = T)
-    x.boot <- unlist(x.lst[N.boot])
-    z.boot <- unlist(z.lst[N.boot])
-    y.boot <- unlist(y.lst[N.boot])
-    obj <- fitting(tau,y.boot,x.boot,z.boot) #fitting.cqr(tao.v,y.boot,x.boot,z.boot)
-    par.boot[i,] <- as.vector(obj[[1]])
-  }
-  
-  return(par.boot)
-}
-
-
-CQR.boot <- function(y,x,z,subject,tao.v,n.boot)
-{
-  
-  design=model.matrix(~-1+factor(subject))
-  N=dim(design)[2]
-  x.lst=list()
-  z.lst=list()
-  y.lst=list()
-  for(i in 1:N){
-    x.lst[[i]]=subset(x,design[,i]==1)
-    z.lst[[i]]=subset(z,design[,i]==1)
-    y.lst[[i]]=subset(y,design[,i]==1)
-  }
-  p <- dim(cbind(z))[2]
-  par.boot <- matrix(NA,n.boot,(4*length(tao.v)+1))
-  for(i in 1:n.boot){
-    N.boot <- sample(1:N,replace = T)
-    x.boot <- unlist(x.lst[N.boot])
-    z.boot <- unlist(z.lst[N.boot])
-    y.boot <- unlist(y.lst[N.boot])
-    obj <- fitting.cqr(tao.v,y.boot,x.boot,z.boot) #fitting.cqr(tao.v,y.boot,x.boot,z.boot)
-    par.boot[i,] <- as.vector(obj$vartheta)
-  }
-  return(par.boot)
-}
 
 
 
